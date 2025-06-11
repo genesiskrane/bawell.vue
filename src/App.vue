@@ -3,6 +3,8 @@
 		<p>
 			App Name: Loading... <br />
 			{{ hostname }}
+
+			Goto Admin To Edit
 		</p>
 	</div>
 </template>
