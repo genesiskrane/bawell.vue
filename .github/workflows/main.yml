@@ -53,35 +53,17 @@ jobs:
           echo "TAG=${TAG}" >> "$GITHUB_ENV"
           echo "RELEASE_NAME=${RELEASE_NAME}" >> "$GITHUB_ENV"
 
-      - name: Create and push tag if missing
-        run: |
-          # Configure user in case it's needed for annotated tag creation
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists locally."
-          else
-            git tag -a "$TAG" -m "Release $TAG"
-          fi
-          # Push tag (will create on remote if absent)
-          git push origin "$TAG"
 
       - name: Run build
         run: npm run build
 
-      - name: Verify dist exists
-        run: |
-          if [ ! -d dist ]; then
-            echo "dist/ folder not found, build failed" >&2
-            exit 1
-          fi
 
       - name: Zip dist folder
         id: zip_dist
         run: |
           SHORT_SHA=${GITHUB_SHA::7}
           TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')
-          ZIP_NAME="dist-${TIMESTAMP}-${SHORT_SHA}.zip"
+          ZIP_NAME="dist-${SHORT_SHA}-${TIMESTAMP}.zip"
           zip -r "$ZIP_NAME" dist
           echo "zip_name=$ZIP_NAME" >>"$GITHUB_OUTPUT"
 
