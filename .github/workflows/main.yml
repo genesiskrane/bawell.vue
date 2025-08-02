@@ -46,7 +46,7 @@ jobs:
           # sanitize to valid tag characters: allow alphanumerics, dot, underscore, dash
           SAFE_VERSION=$(printf '%s' "$RAW_VERSION" | sed 's/[^A-Za-z0-9._-]/-/g')
           TAG="v${SAFE_VERSION}"
-          DATETIME=$(date -u +'%Y%m%dT%H%M%SZ')
+          DATETIME=$(date -u +'%Y%m%dT%H%M%S')
           RELEASE_NAME="${TAG} — ${DATETIME}"
           echo "Using tag: $TAG"
           echo "Using release name: $RELEASE_NAME"
