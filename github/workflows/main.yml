@@ -47,13 +47,11 @@ jobs:
           echo "zip_name=$ZIP_NAME" >>"$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "build-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
-          name: "dist build from main @ $(git rev-parse --short HEAD)"
-          body: |
-            Automated build of the Vue 3 / Vite `dist/` folder from commit `$(git rev-parse --short HEAD)` on branch `main`.
+          tag_name: build-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
+          name: Release build-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
+          body: Automated build release
           draft: false
           prerelease: false
         env:
