@@ -39,14 +39,8 @@ jobs:
             echo "package.json not found" >&2
             exit 1
           fi
-          RAW_VERSION=$(node -p "require('./package.json').version")
-          if [ -z "$RAW_VERSION" ]; then
-            echo "Could not read version from package.json" >&2
-            exit 1
-          fi
-          # sanitize to valid tag characters: allow alphanumerics, dot, underscore, dash
-          SAFE_VERSION=$(printf '%s' "$RAW_VERSION" | sed 's/[^A-Za-z0-9._-]/-/g')
-          TAG="v${SAFE_VERSION}"
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
           DATETIME=$(date -u +'%Y%m%dT%H%M%SZ')
           RELEASE_NAME="${TAG} — ${DATETIME}"
           echo "Using tag: $TAG"
