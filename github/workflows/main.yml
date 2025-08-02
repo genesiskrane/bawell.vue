@@ -37,8 +37,8 @@ jobs:
         run: |
           SHORT_SHA=${GITHUB_SHA::7}
           DATE=$(date +'%Y%m%d')
-          echo "TAG=build-${DATE}" >> $GITHUB_ENV
-
+          echo "TAG=build-${DATE}-${SHORT_SHA}" >> $GITHUB_ENV
+          
       - name: Run build
         run: npm run build
 
