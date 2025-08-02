@@ -74,9 +74,8 @@ jobs:
       - name: Zip dist folder
         id: zip_dist
         run: |
-          SHORT_SHA=${GITHUB_SHA::7}
           TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')
-          ZIP_NAME="dist-${TIMESTAMP}-${SHORT_SHA}.zip"
+          ZIP_NAME="dist-${TIMESTAMP}.zip"
           zip -r "$ZIP_NAME" dist
           echo "zip_name=$ZIP_NAME" >>"$GITHUB_OUTPUT"
 
