@@ -1,4 +1,4 @@
-name: Build & Release Dist
+name: Main Action
 
 on:
   push:
@@ -7,10 +7,11 @@ on:
 
 jobs:
   build-and-release:
-    name: Build and release dist
+    name: Build and Release Dist
     runs-on: ubuntu-latest
     permissions:
-      contents: write # needed to create releases and upload assets
+      contents: write # required to create releases / push tags
+      packages: write
       issues: none
       pull-requests: none
 
@@ -27,7 +28,25 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+
+      - name: Read version from package.json and set tag & release name
+        id: set_tag
+        run: |
+          if [ ! -f package.json ]; then
+            echo "package.json not found" >&2
+            exit 1
+          fi
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          DATETIME=202510
+          RELEASE_NAME="${TAG} — ${DATETIME}"
+          echo "Using tag: $TAG"
+          echo "Using release name: $RELEASE_NAME"
+          echo "TAG=${TAG}" >> "$GITHUB_ENV"
+          echo "RELEASE_NAME=${RELEASE_NAME}" >> "$GITHUB_ENV"
+
 
       - name: Run build
         run: npm run build
@@ -35,35 +54,27 @@ jobs:
       - name: Verify dist exists
         run: |
           if [ ! -d dist ]; then
-            echo "dist/ folder not found, build failed"
+            echo "dist/ folder not found, build failed" >&2
             exit 1
           fi
 
       - name: Zip dist folder
+        id: zip_dist
         run: |
-          ZIP_NAME="dist-$(date +'%Y%m%dT%H%M%SZ')-$(git rev-parse --short HEAD).zip"
+          TIMESTAMP=2025
+          ZIP_NAME="dist-${TIMESTAMP}.zip"
           zip -r "$ZIP_NAME" dist
           echo "zip_name=$ZIP_NAME" >>"$GITHUB_OUTPUT"
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release and upload asset
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "build-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
-          name: "dist build from main @ $(git rev-parse --short HEAD)"
-          body: |
-            Automated build of the Vue 3 / Vite `dist/` folder from commit `$(git rev-parse --short HEAD)` on branch `main`.
+          tag_name: ${{ env.TAG }}
+          name: ${{ env.RELEASE_NAME }}
+          body: Automated build release
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Upload dist zip to release
-        uses: softprops/action-gh-release@v2
-        if: steps.create_release.outputs.upload_url != ''
-        with:
-          tag_name: ${{ steps.create_release.outputs.tag_name }}
-          name: ${{ steps.create_release.outputs.name }}
-          files: ${{ steps.build-and-release.outputs.zip_name || '' }}
+          files: ${{ steps.zip_dist.outputs.zip_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
