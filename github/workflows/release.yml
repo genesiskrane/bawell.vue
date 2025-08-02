@@ -56,7 +56,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Upload dist zip to release
         uses: softprops/action-gh-release@v2
@@ -66,4 +66,4 @@ jobs:
           name: ${{ steps.create_release.outputs.name }}
           files: ${{ steps.build-and-release.outputs.zip_name || '' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
