@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: write # required to create releases / push tags
       packages: write
+      metadata: read
       issues: none
       pull-requests: none
 
@@ -28,7 +29,15 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run:
+          npm ci
+
+          # Compute a tag like: build-20250802-abc1234
+      - name: Set release tag
+        run: |
+          SHORT_SHA=${GITHUB_SHA::7}
+          DATE=$(date +'%Y%m%d')
+          echo "TAG=build-${DATE}" >> $GITHUB_ENV
 
       - name: Run build
         run: npm run build
@@ -49,8 +58,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
-          name: Release build-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
+          tag_name: ${{ env.TAG }}
+          name: Release dist build from main @ ${{ env.TAG }}
           body: Automated build release
           draft: false
           prerelease: false
